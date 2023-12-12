@@ -17,7 +17,7 @@ class Utility:
 
         # Find the lowest time unit in clocks of models
         for model in Utility.get_models(tasks):
-            for clock in model.get_clocks() :
+            for clock in model.get_all_clocks() :
                 if clock.isTimeBased() and clock.get_time_unit().value > lowest.value:
                     lowest = TimeUnit(clock.get_time_unit())
 
@@ -28,7 +28,7 @@ class Utility:
 
         # Normalize all clocks of models to the lowest time unit
         for model in Utility.get_models(tasks):
-            for clock in model.get_clocks() :
+            for clock in model.get_all_clocks() :
                 if clock.isTimeBased():
                     clock.set_raster(int(clock.get_raster() * (lowest.value / clock.get_time_unit().value)))
                     clock.set_time_unit(lowest)
@@ -68,23 +68,23 @@ class Utility:
     
     @staticmethod
     def get_local_hcf_time(model, time = -1):
-        hcf = []
-
-        if time >= 0:
-            hcf.append(time)
-
+        clocks = model.get_all_clocks() if time == -1 else model.get_clocks(time)
+        
+        hcf = [] if time == -1 else [time]
         hcf.append(model.get_raster())
 
-        for clock in model.get_clocks():
+        for clock in clocks:
             hcf.append(clock.get_raster())
         
         return math.gcd(*hcf)
     
     @staticmethod
-    def get_local_lcm_time(model):
+    def get_local_lcm_time(model, time = -1):
         lcm = []
         lcm.append(model.get_raster())
-        for clock in model.get_clocks():
+        clocks = model.get_all_clocks() if time == -1 else model.get_clocks(time)
+
+        for clock in clocks:
             if clock.isTimeBased():
                 lcm.append(clock.get_raster())
         return math.lcm(*lcm)

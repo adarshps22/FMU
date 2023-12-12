@@ -20,15 +20,20 @@ class TimeBasedClockType(Enum):
     APERIODIC = "Aperiodic"
 
 class Clock:
-    def __init__(self, name):
+    def __init__(self, name, time_unit = TimeUnit.S, start_time = -1, end_time = -1):
+        if(start_time > end_time):
+            raise Exception("End time cannot be greater than start time")
+        
         self.__name = name
         self.__clock_type = ClockType.NOTDEFINED
         self.__variability_type = VariabilityType.NOTDEFINED
         self.__time_based_clock_type = TimeBasedClockType.NOTDEFINED
         self.__raster = -1
-        self.__timeunit = TimeUnit.S
+        self.__timeunit = time_unit
         self.__color = '#F5F5F5;line:black'
         self.__execution_intervals = []
+        self.__start_time = start_time
+        self.__end_time = end_time
 
     def get_name(self):
         return self.__name
@@ -54,26 +59,29 @@ class Clock:
     def get_execution_intervals(self):
         return self.__execution_intervals
         
-    def configure_constant_clock(self, raster, timeunit):
+    def is_active_in_time(self, time):
+        if self.__start_time == -1 and self.__end_time == -1:
+            return True
+        
+        return self.__start_time <= time < self.__end_time
+    
+    def configure_constant_clock(self, raster):
         self.__clock_type = ClockType.TIME
         self.__variability_type = TimeBasedClockType.PERIODIC
         self.__variability_type = VariabilityType.CONSTANT
         self.__raster = raster
-        self.__timeunit = timeunit
 
-    def configure_fixed_clock(self, raster, timeunit):
+    def configure_fixed_clock(self, raster):
         self.__clock_type = ClockType.TIME
         self.__variability_type = TimeBasedClockType.PERIODIC
         self.__variability_type = VariabilityType.FIXED 
         self.__raster = raster
-        self.__timeunit = timeunit
 
-    def configure_tunable_clock(self, raster, timeunit):
+    def configure_tunable_clock(self, raster):
         self.__clock_type = ClockType.TIME
         self.__variability_type = TimeBasedClockType.PERIODIC
         self.__variability_type = VariabilityType.TUNABLE  
         self.__raster = raster
-        self.__timeunit = timeunit 
 
     def configure_changing_clock(self):
         self.__clock_type = ClockType.TIME

@@ -24,9 +24,6 @@ class Model:
         self.__local_lcm_time = -1
         self.__local_time_unit = TimeUnit.S
 
-        self.__start_time = 0
-        self.__end_time = 0
-
     def __assign_color(self, model_name):
         hash_value = int(hashlib.sha256(model_name.encode()).hexdigest(), 16)
         index = hash_value % len(self.__COLORS)
@@ -53,7 +50,14 @@ class Model:
     def remove_clock(self, clock):
         self.__Clocks.remove(clock)
 
-    def get_clocks(self):
+    def get_clocks(self, time):
+        clocks = []
+        for clock in self.__Clocks:
+            if clock.is_active_in_time(time):
+                clocks.append(clock)
+        return clocks
+    
+    def get_all_clocks(self):
         return self.__Clocks
     
     def get_raster(self):

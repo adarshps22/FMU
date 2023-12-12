@@ -1,3 +1,4 @@
+import math
 from Model import Model, TimeUnit
 from UMLGenerator import WSDFileCreator
 from Utility import Utility
@@ -39,7 +40,9 @@ class Scheduler:
         return self.__end_time
     
     def set_end_time(self, end_time, time_unit):
-        self.__end_time = int(end_time * (self.__global_time_unit.value / time_unit.value))
+        time = int(end_time * (self.__global_time_unit.value / time_unit.value))
+        if time > self.__end_time:
+            self.__end_time = math.ceil(time / self.__global_lcm_time) * self.__global_lcm_time
 
     def normalize_system_time(self):
         self.__global_time_unit = Utility.normalize_system_time(self.__tasks)
@@ -53,8 +56,11 @@ class Scheduler:
 
     def configure_local_time(self):
         for model in Utility.get_models(self.__tasks):
-            model.set_local_hcf_time(Utility.get_local_hcf_time(model))
-            model.set_local_lcm_time(Utility.get_local_lcm_time(model))
+            self.__configure_model_local_time(model)
+
+    def __configure_model_local_time(self, model, time = -1):
+        model.set_local_hcf_time(Utility.get_local_hcf_time(model, time))
+        model.set_local_lcm_time(Utility.get_local_lcm_time(model, time))
 
     def calculate_execution_interval(self):
         for time in range(self.__start_time, self.__end_time, self.__global_hcf_time):
@@ -69,6 +75,7 @@ class Scheduler:
         self.__add_models_execution_end_interval(self.__tasks)
     
     def __calculate_model_execution_interval(self, model, time):
+        self.__configure_model_local_time(model, time)
         if(model.get_local_hcf_time() != model.get_raster()):
                 for modelStepTime in range(time, time + model.get_raster(), model.get_local_hcf_time()):
                     self.__add_single_model_execution_interval(model, modelStepTime, model.get_local_hcf_time(), model.get_color())
@@ -80,12 +87,13 @@ class Scheduler:
         model.add_execution_intervals(Utility.get_execution_interval(time, raster, color))
 
     def __calculate_clock_execution_interval(self, model, time):
-            for time in range(time, model.get_raster(), model.get_local_hcf_time()):
-                for clock in model.get_clocks():
+            for time in range(time, time + model.get_raster(), model.get_local_hcf_time()):
+                for clock in model.get_clocks(time):
                     if time % clock.get_raster() == 0 and clock.isTimeBased():
                         clock.add_execution_intervals(Utility.get_execution_interval(time, clock.get_raster(), clock.get_color()))
         
     def __calculate_model_offset_execution_interval(self, model, time, priority, models_count, offset_hcf_time):
+        self.__configure_model_local_time(model, time)
         for priority_pos in range(0, models_count):
             offset_raster_time = (model.get_raster()/models_count)
             offset_start_time = time + (priority_pos * offset_raster_time) # check if this should be converted to int
@@ -101,15 +109,15 @@ class Scheduler:
                     else:
                         t = offset_start_time + (offset_end_time - offset_start_time)/2
                         model.add_execution_intervals(Utility.get_execution_interval(t, model.get_local_hcf_time(), model.get_color()))
+                    model.add_execution_intervals(Utility.get_execution_interval_hidden(offset_end_time))
                 else:
                     model.add_execution_intervals(Utility.get_execution_interval(offset_start_time, model.get_raster(), model.get_color()))
                 self.__calculate_clock_offset_execution_interval(model, offset_start_time, offset_end_time, offset_hcf_time)
-                self.__add_clock_end_interval(model)
             else:
                 model.add_execution_intervals(Utility.get_execution_interval_hidden(offset_start_time))
 
     def __calculate_clock_offset_execution_interval(self, model, start_time, end_time, offset_hcf_time):
-        for clock in model.get_clocks():
+        for clock in model.get_clocks(start_time):
             if(clock.get_raster() != model.get_raster()):
                 clock.add_execution_intervals(Utility.get_execution_interval(start_time, clock.get_raster(), clock.get_color()))
                 if(2 * offset_hcf_time != end_time):
@@ -118,8 +126,10 @@ class Scheduler:
                     clock.add_execution_intervals(Utility.get_comment_for_raster_change(start_time, end_time, model.get_raster(), clock.get_raster(), True))
                 else:
                     clock.add_execution_intervals(Utility.get_execution_interval(start_time + (end_time - start_time)/2, clock.get_raster(), clock.get_color()))
+                clock.add_execution_intervals(Utility.get_execution_interval_hidden(end_time))
             else:
                 clock.add_execution_intervals(Utility.get_execution_interval(start_time, clock.get_raster(), clock.get_color()))
+                clock.add_execution_intervals(Utility.get_execution_interval_hidden(end_time))
 
     def __add_models_execution_end_interval(self, tasks):
         # Handling end time
@@ -129,9 +139,12 @@ class Scheduler:
                     task.models[priority].add_execution_intervals(Utility.get_execution_interval_for_end_time(self.__end_time))
             else:
                 task.models[0].add_execution_intervals(Utility.get_execution_interval_for_end_time(self.__end_time))
-                self.__add_clock_end_interval(task.models[0])
+        
+        for model in Utility.get_models(tasks):
+            self.__add_clock_end_interval(model)
 
     def __add_clock_end_interval(self, model):
-        for clock in model.get_clocks():
+        end_time = self.__end_time
+        for clock in model.get_clocks(end_time):
             if clock.isTimeBased():
-                clock.add_execution_intervals(Utility.get_execution_interval_for_end_time(self.__end_time))
+                clock.add_execution_intervals(Utility.get_execution_interval_for_end_time(end_time))

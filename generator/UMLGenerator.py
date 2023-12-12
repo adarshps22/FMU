@@ -31,7 +31,7 @@ class WSDFileCreator:
             file.write('\' Define models in the system\n')
             for model in models:
                 file.write(f'concise "{model.get_model_name()}" as {model.get_name_without_spaces()}\n')
-                for clock in model.get_clocks():
+                for clock in model.get_all_clocks():
                     if clock.isTimeBased():
                         file.write(f'concise "{clock.get_name()}" as {clock.get_name_without_spaces()}\n')
             file.write('\n')

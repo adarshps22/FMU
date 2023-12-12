@@ -14,7 +14,7 @@ def create_wsd_file(scheduler):
 
     for model in Utility.get_models(scheduler.get_tasks()):
         creator.add_process(model)
-        for clock in model.get_clocks():
+        for clock in model.get_all_clocks():
             if clock.isTimeBased():
                 creator.add_process(clock)
     
@@ -29,19 +29,22 @@ def main():
     D = Model('FMU D')
     E = Model('FMU E')
 
-    clock1 = Clock('Clock 1')
-    clock1.configure_constant_clock(6000, TimeUnit.MS)
-    clock2 = Clock('Clock 2')
-    clock2.configure_constant_clock(200, TimeUnit.MS)
-    clock3 = Clock('Clock 3')
-    clock3.configure_constant_clock(500, TimeUnit.MS)
-    clock4 = Clock('Clock 4')
-    clock4.configure_constant_clock(3000, TimeUnit.MS)
+    clock1 = Clock('Clock 1', TimeUnit.MS)
+    clock1.configure_constant_clock(400)
+    clock2 = Clock('Clock 2', TimeUnit.MS)
+    clock2.configure_constant_clock(1000)
+    clock3 = Clock('Clock 3', TimeUnit.MS)
+    clock3.configure_constant_clock(500)
+    clock4 = Clock('Clock 4', TimeUnit.MS)
+    clock4.configure_constant_clock(3000)
+    clock5 = Clock('Clock 5', TimeUnit.MS, 2000, 2500)
+    clock5.configure_tunable_clock(100)
 
-    B.add_clock(clock1)
-    B.add_clock(clock4)
+    #B.add_clock(clock1)
+    #B.add_clock(clock4)
     D.add_clock(clock2)  
     D.add_clock(clock3)
+    D.add_clock(clock5)
 
     task = Task('Task 1', 3, TimeUnit.S)
     task.add_model(A, 2)
@@ -53,14 +56,14 @@ def main():
 
     scheduler = Scheduler()
     
-    scheduler.add_task(task)
+    #scheduler.add_task(task)
     scheduler.add_task(task2)
 
     scheduler.normalize_system_time()
     scheduler.configure_local_time()
     scheduler.configure_global_time()
 
-    #scheduler.set_end_time(6, TimeUnit.S) #fix end_time
+    scheduler.set_end_time(4, TimeUnit.S)
 
     scheduler.calculate_execution_interval()
 
