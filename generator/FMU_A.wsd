@@ -1,0 +1,19 @@
+' Co Simulation timing diagram
+@startuml
+' Define Model and Clocks in the system
+concise "FMU A" as FMU_A
+
+@FMU_A
+0 is "3000" #00FF00
+3000 is "3000" #00FF00
+6000 is {hidden}
+
+' Define the time axis
+@-1
+@0
+@3000
+@6000
+
+@FMU_A
+@1500 <-> @4500 : Time scale in ms
+@enduml

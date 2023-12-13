@@ -68,13 +68,24 @@ class Utility:
     
     @staticmethod
     def get_local_hcf_time(model, time = -1):
-        clocks = model.get_all_clocks() if time == -1 else model.get_clocks(time)
+        clocks = set()
+        if time == -1:
+            clocks.update(model.get_all_clocks())
+        else:
+            local_hcf = []
+            for clock in model.get_all_clocks():
+                local_hcf.append(clock.get_raster() + clock.get_offset())
+            
+            if len(local_hcf) > 0:
+                step = math.gcd(*local_hcf)
+                for step_time in range(time ,time + model.get_raster(), step):
+                    clocks.update(model.get_clocks(step_time))
         
         hcf = [] if time == -1 else [time]
         hcf.append(model.get_raster())
 
         for clock in clocks:
-            hcf.append(clock.get_raster())
+            hcf.append(clock.get_raster() + clock.get_offset())
         
         return math.gcd(*hcf)
     

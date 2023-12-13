@@ -18,6 +18,7 @@ class Model:
         self.__raster = -1
         self.__timeunit = TimeUnit.S
         self.__execution_intervals = []
+        self.__local_execution_intervals = []
         self.__Clocks = set()
 
         self.__local_hcf_time = -1
@@ -34,6 +35,12 @@ class Model:
 
     def get_execution_intervals(self):
         return self.__execution_intervals
+    
+    def add_local_execution_intervals(self, intervals):
+        self.__local_execution_intervals.extend(intervals)
+
+    def get_local_execution_intervals(self):
+        return self.__local_execution_intervals
     
     def get_model_name(self):
         return self.__model_name
@@ -54,6 +61,13 @@ class Model:
         clocks = []
         for clock in self.__Clocks:
             if clock.is_active_in_time(time):
+                clocks.append(clock)
+        return clocks
+    
+    def get_end_time_clocks(self, time):
+        clocks = []
+        for clock in self.__Clocks:
+            if clock.get_end_time() == time:
                 clocks.append(clock)
         return clocks
     

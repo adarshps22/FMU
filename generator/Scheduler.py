@@ -62,6 +62,59 @@ class Scheduler:
         model.set_local_hcf_time(Utility.get_local_hcf_time(model, time))
         model.set_local_lcm_time(Utility.get_local_lcm_time(model, time))
 
+    def generate_global_schedule(self):
+        for time in range(self.__start_time, self.__end_time, self.__global_hcf_time):
+            for task in self.__tasks:
+                if time % task.raster == 0:
+                    # Check if multiple models are present in the task, indicating sequential execution
+                    if len(task.models) > 1:
+                        for priority in task.models.keys():
+                            pass
+                            self.__generate_sequential_model_schedule(task.models[priority], time, priority, len(task.models))
+                    else:
+                        self.__generate_single_model_schedule(task.models[0], time)
+        self.__generate_single_model_schedule_hidden(self.__end_time)
+
+    def __generate_sequential_model_schedule(self, model, time, priority, models_count):
+        for priority_pos in range(0, models_count): 
+            offset_raster_time = (model.get_raster()/models_count)
+            offset_start_time = time + (priority_pos * offset_raster_time) # check if this should be converted to int
+            offset_end_time = offset_start_time + offset_raster_time
+            if priority == priority_pos + 1:
+                self.__generate_single_model_schedule(model, offset_start_time, offset_end_time) 
+
+    def __generate_single_model_schedule(self, model, start_time , end_time = -1):
+        model.add_execution_intervals(Utility.get_execution_interval(start_time, model.get_raster(), model.get_color()))
+        if end_time != -1:
+            model.add_execution_intervals(Utility.get_execution_interval_for_end_time(end_time))
+
+    def __generate_single_model_schedule_hidden(self, end_time):
+        for task in self.__tasks:
+            if len(task.models) == 1:
+                task.models[0].add_execution_intervals(Utility.get_execution_interval_for_end_time(end_time))
+
+    def generate_local_schedule(self):
+        for model in Utility.get_models(self.__tasks):
+            time = self.__start_time
+            end_time = self.__end_time
+            while time < end_time:
+                self.__configure_model_local_time(model, time)
+                self.__generate_local_model_schedule(model, time)
+                for clock in model.get_clocks(time):
+                    if (time - clock.get_offset()) % clock.get_raster() == 0 and clock.isTimeBased():
+                        clock.add_execution_intervals(Utility.get_execution_interval(time, clock.get_raster(), clock.get_color()))
+                time += model.get_local_hcf_time()
+                for clock in model.get_end_time_clocks(time):
+                    if clock.isTimeBased():
+                        clock.add_execution_intervals(Utility.get_execution_interval_for_end_time(time))
+            model.add_local_execution_intervals(Utility.get_execution_interval_for_end_time(end_time))
+            for clock in model.get_clocks(end_time):
+                if clock.isTimeBased() and (end_time - clock.get_offset())% clock.get_raster() == 0:
+                    clock.add_execution_intervals(Utility.get_execution_interval_for_end_time(end_time))
+
+    def __generate_local_model_schedule(self, model, time):
+        model.add_local_execution_intervals(Utility.get_execution_interval(time, model.get_local_hcf_time(), model.get_color()))
+
     def calculate_execution_interval(self):
         for time in range(self.__start_time, self.__end_time, self.__global_hcf_time):
             for task in self.__tasks:

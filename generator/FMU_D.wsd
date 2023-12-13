@@ -1,6 +1,6 @@
 ' Co Simulation timing diagram
 @startuml
-' Define models in the system
+' Define Model and Clocks in the system
 concise "FMU D" as FMU_D
 concise "Clock 2" as Clock_2
 concise "Clock 3" as Clock_3
@@ -24,6 +24,7 @@ concise "Clock 5" as Clock_5
 @Clock_2
 0 is "1000" #F5F5F5;line:black
 1000 is "1000" #F5F5F5;line:black
+2000 is {hidden}
 
 @Clock_3
 0 is "500" #F5F5F5;line:black
@@ -42,69 +43,22 @@ concise "Clock 5" as Clock_5
 
 @Clock_5
 2000 is "100" #F5F5F5;line:black
+2500 is {hidden}
 
 ' Define the time axis
 @-1
 @0
-@100
-@200
-@300
-@400
 @500
-@600
-@700
-@800
-@900
 @1000
-@1100
-@1200
-@1300
-@1400
 @1500
-@1600
-@1700
-@1800
-@1900
 @2000
-@2100
-@2200
-@2300
-@2400
 @2500
-@2600
-@2700
-@2800
-@2900
 @3000
-@3100
-@3200
-@3300
-@3400
 @3500
-@3600
-@3700
-@3800
-@3900
 @4000
-@4100
-@4200
-@4300
-@4400
 @4500
-@4600
-@4700
-@4800
-@4900
 @5000
-@5100
-@5200
-@5300
-@5400
 @5500
-@5600
-@5700
-@5800
-@5900
 @6000
 
 @FMU_D

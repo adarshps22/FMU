@@ -34,6 +34,7 @@ class Clock:
         self.__execution_intervals = []
         self.__start_time = start_time
         self.__end_time = end_time
+        self.__offset = 0
 
     def get_name(self):
         return self.__name
@@ -53,6 +54,12 @@ class Clock:
     def get_raster(self):
         return self.__raster
     
+    def get_offset(self):
+        return self.__offset
+    
+    def get_end_time(self):
+        return self.__end_time
+    
     def add_execution_intervals(self, intervals):
         self.__execution_intervals.extend(intervals)
 
@@ -63,19 +70,28 @@ class Clock:
         if self.__start_time == -1 and self.__end_time == -1:
             return True
         
+        if self.__end_time == -1:
+            return self.__start_time <= time
+        
         return self.__start_time <= time < self.__end_time
     
-    def configure_constant_clock(self, raster):
+    def configure_constant_clock(self, raster, offset = -1):
         self.__clock_type = ClockType.TIME
         self.__variability_type = TimeBasedClockType.PERIODIC
         self.__variability_type = VariabilityType.CONSTANT
         self.__raster = raster
+        if offset != -1:
+            self.__offset = offset
+            self.__start_time = offset
 
-    def configure_fixed_clock(self, raster):
+    def configure_fixed_clock(self, raster, offset = -1):
         self.__clock_type = ClockType.TIME
         self.__variability_type = TimeBasedClockType.PERIODIC
         self.__variability_type = VariabilityType.FIXED 
         self.__raster = raster
+        if offset != -1:
+            self.__offset = offset
+            self.__start_time = offset
 
     def configure_tunable_clock(self, raster):
         self.__clock_type = ClockType.TIME
