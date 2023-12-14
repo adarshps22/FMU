@@ -67,28 +67,40 @@ class Utility:
         return math.lcm(*lcm)
     
     @staticmethod
-    def get_local_hcf_time(model, time = -1):
-        clocks = set()
-        if time == -1:
-            clocks.update(model.get_all_clocks())
-        else:
-            local_hcf = []
-            for clock in model.get_all_clocks():
-                local_hcf.append(clock.get_raster() + clock.get_offset())
-            
-            if len(local_hcf) > 0:
-                step = math.gcd(*local_hcf)
-                for step_time in range(time ,time + model.get_raster(), step):
-                    clocks.update(model.get_clocks(step_time))
-        
+    def get_local_hcf_time(model, time = -1):        
         hcf = [] if time == -1 else [time]
         hcf.append(model.get_raster())
 
-        for clock in clocks:
+        for clock in model.get_clocks(time):
             hcf.append(clock.get_raster() + clock.get_offset())
+            hcf.append(clock.get_raster())
         
         return math.gcd(*hcf)
     
+    def get_local_reduced_step_time(model, time, step):
+        if len(model.get_all_clocks()) == 0:
+            return step
+        
+        # calculate minimum step size for all the clocks
+        local_hcf = []
+        local_hcf.append(model.get_raster())
+        for clock in model.get_all_clocks():
+            local_hcf.append(clock.get_raster() + clock.get_offset())
+        
+        local_step = math.gcd(*local_hcf)
+
+        clocks = set()
+        for step_time in range(time, time + step, local_step):
+            clocks.update(model.get_clocks(step_time))
+        
+        hcf = [time]
+        hcf.append(model.get_raster())
+        for clock in clocks:
+            hcf.append(clock.get_raster() + clock.get_offset())
+            hcf.append(clock.get_raster())
+
+        return math.gcd(*hcf)
+
     @staticmethod
     def get_local_lcm_time(model, time = -1):
         lcm = []
