@@ -46,28 +46,36 @@ def main():
     E = Model('FMU E')
 
     clock1 = Clock('Clock 1', TimeUnit.MS)
-    clock1.configure_constant_clock(4000)
+    clock1.configure_constant_clock(3000)
     clock2 = Clock('Clock 2', TimeUnit.MS, 0, 2000)
     clock2.configure_tunable_clock(1000)
     clock3 = Clock('Clock 3', TimeUnit.MS)
-    clock3.configure_constant_clock(500)
+    clock3.configure_constant_clock(500, 1000)
     clock4 = Clock('Clock 4', TimeUnit.MS)
-    clock4.configure_constant_clock(3000, 4000)
-    clock5 = Clock('Clock 5', TimeUnit.MS, 2000, 2500)
+    clock4.configure_constant_clock(1000, 4000)
+    clock5 = Clock('Clock 5', TimeUnit.MS, 2400, 2600)
     clock5.configure_tunable_clock(100)
 
     B.add_clock(clock1)
-    B.add_clock(clock4)
+    A.add_clock(clock4)
     D.add_clock(clock2)  
     D.add_clock(clock3)
     D.add_clock(clock5)
+
+    clock6 = Clock('Clock 6', TimeUnit.MS)
+    clock6.configure_constant_clock(1000)
+    clock7 = Clock('Clock 7', TimeUnit.MS)
+    clock7.configure_constant_clock(2000, 2000)
+
+    C.add_clock(clock6)
+    C.add_clock(clock7)
 
     task = Task('Task 1', 3, TimeUnit.S)
     task.add_model(A, 2)
     task.add_model(B, 3)
     task.add_model(C, 1)
 
-    task2 = Task('Task 2', 2, TimeUnit.S)
+    task2 = Task('Task 2', 3, TimeUnit.S)
     task2.add_model(D)
 
     scheduler = Scheduler()
@@ -79,7 +87,7 @@ def main():
     scheduler.configure_local_time()
     scheduler.configure_global_time()
 
-    scheduler.set_end_time(6, TimeUnit.S)
+    #scheduler.set_end_time(6, TimeUnit.S)
 
     scheduler.generate_global_schedule()
     scheduler.generate_local_schedule()
