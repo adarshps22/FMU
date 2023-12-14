@@ -1,6 +1,7 @@
 from enum import Enum
 import hashlib
 import copy
+import random
 from Clock import ClockType, VariabilityType, TimeBasedClockType, Clock
 from TimeUnit import TimeUnit
 
@@ -10,7 +11,7 @@ class Clock:
         self.timeunit = timeunit
 
 class Model:
-    __COLORS = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF']
+    __COLORS = ['#82CDCD', '#EEDD82', '#82CDA8', '#82A8CD', '#CD8282']
 
     def __init__(self, model_name):
         self.__model_name = model_name  
@@ -26,9 +27,12 @@ class Model:
         self.__local_time_unit = TimeUnit.S
 
     def __assign_color(self, model_name):
-        hash_value = int(hashlib.sha256(model_name.encode()).hexdigest(), 16)
-        index = hash_value % len(self.__COLORS)
-        return self.__COLORS[index]   
+        random.seed(model_name)
+        random_number = random.randint(0, 4)
+        return self.__COLORS[random_number]
+        # hash_value = int(hashlib.sha256(model_name.encode()).hexdigest(), 16)
+        # index = hash_value % len(self.__COLORS)
+        # return self.__COLORS[index]   
 
     def add_execution_intervals(self, intervals):
         self.__execution_intervals.extend(intervals)
