@@ -56,7 +56,7 @@ class Scheduler:
 
     def configure_local_time(self):
         for model in Utility.get_models(self.__tasks):
-            self.__configure_model_local_time(model)
+            self.__configure_model_local_time(model, self.__start_time)
 
     def __configure_model_local_time(self, model, time = -1):
         model.set_local_hcf_time(Utility.get_local_hcf_time(model, time))
@@ -99,21 +99,24 @@ class Scheduler:
             end_time = self.__end_time
             while time < end_time:
                 self.__configure_model_local_time(model, time)
-                self.__generate_local_model_schedule(model, time)
-                for clock in model.get_clocks(time):
-                    if (time - clock.get_offset()) % clock.get_raster() == 0 and clock.isTimeBased():
-                        clock.add_execution_intervals(Utility.get_execution_interval(time, clock.get_raster(), clock.get_color()))
+                reduced_step_time = Utility.get_local_reduced_step_time(model, time, model.get_local_hcf_time())
+                for reduced_time in range(time, time + model.get_local_hcf_time(), reduced_step_time):
+                    self.__generate_local_model_schedule(model, reduced_time, reduced_step_time)
+                    for clock in model.get_clocks(reduced_time):
+                        if clock.isTimeBased() and (reduced_time - clock.get_offset()) % clock.get_raster() == 0:
+                            clock.add_execution_intervals(Utility.get_execution_interval(reduced_time, clock.get_raster(), clock.get_color()))
+                    reduced_time += reduced_step_time
+                    for clock in model.get_end_time_clocks(reduced_time):
+                        if clock.isTimeBased():
+                            clock.add_execution_intervals(Utility.get_execution_interval_for_end_time(reduced_time))
                 time += model.get_local_hcf_time()
-                for clock in model.get_end_time_clocks(time):
-                    if clock.isTimeBased():
-                        clock.add_execution_intervals(Utility.get_execution_interval_for_end_time(time))
             model.add_local_execution_intervals(Utility.get_execution_interval_for_end_time(end_time))
             for clock in model.get_clocks(end_time):
                 if clock.isTimeBased() and (end_time - clock.get_offset())% clock.get_raster() == 0:
                     clock.add_execution_intervals(Utility.get_execution_interval_for_end_time(end_time))
 
-    def __generate_local_model_schedule(self, model, time):
-        model.add_local_execution_intervals(Utility.get_execution_interval(time, model.get_local_hcf_time(), model.get_color()))
+    def __generate_local_model_schedule(self, model, time, reduced_step_time):
+        model.add_local_execution_intervals(Utility.get_execution_interval(time, reduced_step_time, model.get_color()))
 
     def calculate_execution_interval(self):
         for time in range(self.__start_time, self.__end_time, self.__global_hcf_time):
