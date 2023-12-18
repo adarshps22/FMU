@@ -1,0 +1,45 @@
+' Co Simulation timing diagram
+@startuml
+' Define models in the system
+
+Title Intermediate Mode Co Simulation with Early Return Request
+legend
+FMU A raster is 100 ms
+FMU A is generating data at 100 ms, But do step is completed at the rate of 1000ms
+Intermediate data is used for logging only
+endlegend
+
+hide time-axis
+
+concise "FMU A" as FMU_A
+concise "FMU B" as FMU_B
+
+@FMU_A
+0.0 is "100" #CD8282
+100.0 is "100" #CD8282
+200.0 is "100" #CD8282
+300.0 is "100" #CD8282
+400.0 is "100" #CD8282
+500.0 is "100" #CD8282
+600.0 is "100" #CD8282
+700.0 is "100" #CD8282
+800.0 is "100" #CD8282
+900.0 is "100" #CD8282
+1000.0 is {hidden}
+
+@FMU_B
+1000.0 is "1000" #EEDD82
+2000.0 is {hidden}
+
+' Define the time axis
+@-1
+@0
+@1000
+@2000
+
+@FMU_A
+@500 <-> @1500 : Time scale in ms
+
+highlight 0 to 1000 #LightGrey;line:DimGrey
+
+@enduml

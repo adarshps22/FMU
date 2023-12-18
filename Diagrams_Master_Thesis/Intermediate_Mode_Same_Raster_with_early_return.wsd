@@ -1,0 +1,71 @@
+' Co Simulation timing diagram
+@startuml
+' Define models in the system
+
+Title Intermediate Mode Co Simulation with Early Return Request
+legend
+FMU A and FMU B raster is 1000 ms
+FMU A is generating data at 100 ms and requesting early return at 100 ms in intermediate mode
+FMU B is consuming data at 100 ms: Do step of 100 ms incremented for FMU B
+endlegend
+
+hide time-axis
+
+concise "FMU A" as FMU_A
+concise "FMU B" as FMU_B
+
+@FMU_A
+0.0 is "100" #CD8282
+100.0 is {hidden}
+200.0 is "100" #CD8282
+300.0 is {hidden}
+400.0 is "100" #CD8282
+500.0 is {hidden}
+600.0 is "100" #CD8282
+700.0 is {hidden}
+800.0 is "100" #CD8282
+900.0 is {hidden}
+1000.0 is "100" #CD8282
+1100.0 is {hidden}
+1200.0 is "100" #CD8282
+1300.0 is {hidden}
+1400.0 is "100" #CD8282
+1500.0 is {hidden}
+1600.0 is "100" #CD8282
+1700.0 is {hidden}
+1800.0 is "100" #CD8282
+1900.0 is {hidden}
+
+@FMU_B
+0.0 is {hidden}
+100.0 is "100" #EEDD82
+200.0 is {hidden}
+300.0 is "100" #EEDD82
+400.0 is {hidden}
+500.0 is "100" #EEDD82
+600.0 is {hidden}
+700.0 is "100" #EEDD82
+800.0 is {hidden}
+900.0 is "100" #EEDD82
+1000.0 is {hidden}
+1100.0 is "100" #EEDD82
+1200.0 is {hidden}
+1300.0 is "100" #EEDD82
+1400.0 is {hidden}
+1500.0 is "100" #EEDD82
+1600.0 is {hidden}
+1700.0 is "100" #EEDD82
+1800.0 is {hidden}
+1900.0 is "100" #EEDD82
+2000.0 is {hidden}
+
+' Define the time axis
+@-1
+@0
+@1000
+@2000
+
+@FMU_A
+@500 <-> @1500 : Time scale in ms
+
+@enduml

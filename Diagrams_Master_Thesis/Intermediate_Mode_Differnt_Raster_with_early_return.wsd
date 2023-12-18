@@ -1,0 +1,51 @@
+' Co Simulation timing diagram
+@startuml
+' Define models in the system
+
+Title Intermediate Mode Co Simulation with Early Return Request
+legend
+FMU A raster is 1000 ms
+FMU B raster is 500 ms
+FMU A is generating data at 100 ms and requesting early return at 100 ms
+FMU B is consuming data at 500 ms: Do step of 500 ms incremented for FMU B
+
+Q. Should this be a valid scenario?
+Insted we can throw configuration error if the FMU B is not able to consume the data at 100 ms
+endlegend
+
+hide time-axis
+
+concise "FMU A" as FMU_A
+concise "FMU B" as FMU_B
+
+@FMU_A
+0.0 is "100" #CD8282
+100.0 is "100" #CD8282
+200.0 is "100" #CD8282
+300.0 is "100" #CD8282
+400.0 is "100" #CD8282
+500.0 is {hidden}
+1000.0 is "100" #CD8282
+1100.0 is "100" #CD8282
+1200.0 is "100" #CD8282
+1300.0 is "100" #CD8282
+1400.0 is "100" #CD8282
+1500.0 is {hidden}
+
+@FMU_B
+0.0 is {hidden}
+500.0 is "500" #EEDD82
+1000.0 is {hidden}
+1500.0 is "500" #EEDD82
+2000.0 is {hidden}
+
+' Define the time axis
+@-1
+@0
+@1000
+@2000
+
+@FMU_A
+@500 <-> @1500 : Time scale in ms
+
+@enduml

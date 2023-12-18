@@ -1,0 +1,76 @@
+' Co Simulation timing diagram
+@startuml
+' Define models in the system
+
+Title Reset of FMU for Triggered Clocks
+legend
+FMU_A -> FMU_B : Trigger @2100 MS
+FMU_A -> FMU_B : Trigger @2500 MS
+FMU_B -> FMU_A : Trigger @2300 MS
+end legend
+
+hide time-axis
+
+concise "FMU A" as FMU_A
+concise "FMU B" as FMU_B
+
+@FMU_A
+0.0 is "1000" #CD8282
+500.0 is {hidden}
+1000.0 is "1000" #CD8282
+1500.0 is {hidden}
+2000.0 is "100" #CD8282
+2100.0 is {hidden}
+2200.0 is "400" #CD8282
+2400.0 is {hidden}
+2600.0 is "200" #CD8282
+2700.0 is "200" #CD8282
+2800.0 is {hidden}
+2900.0 is "500" #CD8282
+3000.0 is {hidden}
+
+@FMU_B
+500.0 is "1000" #EEDD82
+1000.0 is {hidden}
+1500.0 is "1000" #EEDD82
+2000.0 is {hidden}
+2100.0 is "100" #EEDD82
+2200.0 is {hidden}
+2400.0 is "200" #EEDD82
+2500.0 is "200" #EEDD82
+2600.0 is {hidden}
+2800.0 is "200" #EEDD82
+2900.0 is {hidden}
+3000.0 is "500" #EEDD82
+3100.0 is {hidden}
+
+@2100
+FMU_A -> FMU_B
+@2200
+FMU_B -> FMU_A
+@2400
+FMU_A -> FMU_B
+@2500
+FMU_B -> FMU_A
+@2600
+FMU_B -> FMU_A
+@2800
+FMU_A -> FMU_B
+
+' Define the time axis
+@-1
+@0
+@1000
+@2000
+@3000
+
+@FMU_A
+@500 <-> @2500 : Time scale in ms
+
+
+highlight 0 to 1000 #LightGrey;line:DimGrey
+highlight 2000 to 2200 #LightGrey;line:DimGrey
+highlight 2200 to 2500 #LightSalmon;line:DimGrey : Reset FMU @2100 MS
+highlight 2500 to 2700 #LightSeaGreen;line:DimGrey : Reprioritize order
+highlight 2700 to 2900 #LightGrey;line:DimGrey : Reprioritize order
+@enduml

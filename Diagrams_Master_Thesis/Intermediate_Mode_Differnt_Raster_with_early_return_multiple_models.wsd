@@ -1,0 +1,75 @@
+' Co Simulation timing diagram
+@startuml
+' Define models in the system
+
+Title Intermediate Mode Co Simulation with Early Return Request
+legend
+FMU A raster is 1000 ms
+FMU B raster is 500 ms
+FMU C raster is 200 ms
+FMU A is generating data at 100 ms and requesting early return at 100 ms
+FMU B is consuming data at 500 ms: Do step of 500 ms incremented for FMU B
+FMU C is consuming data at 200 ms: Do step of 200 ms incremented for FMU C
+
+Q. Should this scenario be considered as stepping will induce complexity ?
+If we can step in the hcf time of 100ms for all the FMU then the scenario is simple.
+Steeping can be done sequentially at the rate of 100ms
+endlegend
+
+hide time-axis
+
+concise "FMU A" as FMU_A
+concise "FMU B" as FMU_B
+concise "FMU C" as FMU_C
+
+@FMU_A
+0.0 is "100" #CD8282
+100.0 is "100" #CD8282
+200.0 is {hidden}
+400.0 is "100" #CD8282
+500.0 is "100" #CD8282
+600.0 is {hidden}
+800.0 is "100" #CD8282
+900.0 is {hidden}
+1400.0 is "100" #CD8282
+1500.0 is {hidden}
+1700.0 is "100" #CD8282
+1800.0 is "100" #CD8282
+1900.0 is {hidden}
+2100.0 is "100" #CD8282
+2200.0 is "100" #CD8282
+2300.0 is {hidden}
+
+@FMU_B
+0.0 is {hidden}
+900.0 is "500" #EEDD82
+1400.0 is {hidden}
+1500.0 is "500" #EEDD82
+2000.0 is {hidden}
+2500.0 is "500" #EEDD82
+3000.0 is {hidden}
+
+@FMU_C
+200.0 is "200" #B0E0E6
+400.0 is {hidden}
+600.0 is "200" #B0E0E6
+800.0 is {hidden}
+1500.0 is "200" #B0E0E6
+1700.0 is {hidden}
+1900.0 is "200" #B0E0E6
+2100.0 is {hidden}
+2300.0 is "200" #B0E0E6
+2500.0 is {hidden}
+
+
+' Define the time axis
+@-1
+@0
+@1000
+@2000
+@3000
+
+@FMU_A
+@500 <-> @1500 : Time scale in ms
+
+@enduml

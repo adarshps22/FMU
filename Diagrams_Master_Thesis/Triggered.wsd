@@ -1,0 +1,44 @@
+' Co Simulation timing diagram
+@startuml
+' Define models in the system
+
+hide time-axis
+
+concise "FMU A" as FMU_A
+concise "FMU B" as FMU_B
+
+@FMU_A
+0.0 is "1000" #CD8282
+500.0 is {hidden}
+1000.0 is "1000" #CD8282
+1500.0 is {hidden}
+2000.0 is "100" #CD8282
+2100.0 is {hidden}
+FMU_A -> FMU_B : Trigger @2100 MS
+2200.0 is "900" #CD8282
+2600.0 is {hidden}
+
+@FMU_B
+500.0 is "1000" #EEDD82
+1000.0 is {hidden}
+1500.0 is "1000" #EEDD82
+2000.0 is {hidden}
+2100.0 is "100" #EEDD82
+2200.0 is {hidden}
+2600.0 is "900" #EEDD82
+3000.0 is {hidden}
+
+' Define the time axis
+@-1
+@0
+@1000
+@2000
+@3000
+
+@FMU_A
+@500 <-> @2500 : Time scale in ms
+
+
+highlight 0 to 1000 #LightGrey;line:DimGrey
+highlight 2000 to 3000 #LightGrey;line:DimGrey
+@enduml
